@@ -1,0 +1,48 @@
+﻿@model VendorManagementSystem.Models.ViewModels.DetailsEvent
+
+@{
+    ViewBag.Title = "Event Details";
+}
+
+<h2>Event Details</h2>
+
+<div>
+    <h4>Event</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.SelectedEvent.EventName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SelectedEvent.EventName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SelectedEvent.EventDescription)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SelectedEvent.EventDescription)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SelectedEvent.EventLocation)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SelectedEvent.EventLocation)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SelectedEvent.EventType)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SelectedEvent.EventType)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SelectedEvent.EventDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SelectedEvent.EventDate)
+        </dd>
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.SelectedEvent.EventID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

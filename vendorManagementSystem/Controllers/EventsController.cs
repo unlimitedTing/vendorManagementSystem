@@ -1,125 +1,166 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
-using System.Net;
 using System.Web;
 using System.Web.Mvc;
-using vendorManagementSystem.Models;
+using System.Net.Http;
+using System.Diagnostics;
+using VendorManagementSystem.Models;
+using VendorManagementSystem.Models.ViewModels;
+using System.Web.Script.Serialization;
 
-namespace vendorManagementSystem.Controllers
+namespace VendorManagementSystem.Controllers
 {
     public class EventsController : Controller
     {
-        private VendorManagementContext db = new VendorManagementContext();
+        private static readonly HttpClient client;
+        private JavaScriptSerializer jss = new JavaScriptSerializer();
 
-        // GET: Events
-        public ActionResult Index()
+        static EventsController()
         {
-            return View(db.Events.ToList());
+            client = new HttpClient();
+            client.BaseAddress = new Uri("https://localhost:44324/api/");
+        }
+
+        // GET: Events/List
+        public ActionResult List()
+        {
+            string url = "eventdata/listevents";
+            HttpResponseMessage response = client.GetAsync(url).Result;
+
+            IEnumerable<EventDto> events = response.Content.ReadAsAsync<IEnumerable<EventDto>>().Result;
+
+            return View(events);
         }
 
         // GET: Events/Details/5
-        public ActionResult Details(int? id)
+        public ActionResult Details(int id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Event @event = db.Events.Find(id);
-            if (@event == null)
-            {
-                return HttpNotFound();
-            }
-            return View(@event);
+            DetailsEvent ViewModel = new DetailsEvent();
+
+            string url = "eventdata/findevent/" + id;
+            HttpResponseMessage response = client.GetAsync(url).Result;
+
+            EventDto SelectedEvent = response.Content.ReadAsAsync<EventDto>().Result;
+            ViewModel.SelectedEvent = SelectedEvent;
+
+            return View(ViewModel);
         }
 
-        // GET: Events/Create
-        public ActionResult Create()
+        // POST: Events/Associate/{EventId}/{UserId}
+        [HttpPost]
+        public ActionResult Associate(int id, int UserId)
+        {
+            string url = "eventdata/associateeventwithuser/" + id + "/" + UserId;
+            HttpContent content = new StringContent("");
+            content.Headers.ContentType.MediaType = "application/json";
+            HttpResponseMessage response = client.PostAsync(url, content).Result;
+
+            return RedirectToAction("Details/" + id);
+        }
+
+        // GET: Events/UnAssociate/{id}?UserId={UserId}
+        [HttpGet]
+        public ActionResult UnAssociate(int id, int UserId)
+        {
+            string url = "eventdata/unassociateeventwithuser/" + id + "/" + UserId;
+            HttpContent content = new StringContent("");
+            content.Headers.ContentType.MediaType = "application/json";
+            HttpResponseMessage response = client.PostAsync(url, content).Result;
+
+            return RedirectToAction("Details/" + id);
+        }
+
+        public ActionResult Error()
+        {
+            return View();
+        }
+
+        // GET: Events/New
+        public ActionResult New()
         {
             return View();
         }
 
         // POST: Events/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "EventId,EventName,EventDescription,EventLocation,EventType,EventDate,CreatedAt,UpdatedAt")] Event @event)
+        public ActionResult Create(Event @event)
         {
-            if (ModelState.IsValid)
-            {
-                @event.CreatedAt = DateTime.Now;
-                @event.UpdatedAt = DateTime.Now;
-                db.Events.Add(@event);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
+            string url = "eventdata/addevent";
+            string jsonpayload = jss.Serialize(@event);
 
-            return View(@event);
+            HttpContent content = new StringContent(jsonpayload);
+            content.Headers.ContentType.MediaType = "application/json";
+
+            HttpResponseMessage response = client.PostAsync(url, content).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("List");
+            }
+            else
+            {
+                return RedirectToAction("Error");
+            }
         }
 
         // GET: Events/Edit/5
-        public ActionResult Edit(int? id)
+        public ActionResult Edit(int id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Event @event = db.Events.Find(id);
-            if (@event == null)
-            {
-                return HttpNotFound();
-            }
-            return View(@event);
+            UpdateEvent ViewModel = new UpdateEvent();
+
+            string url = "eventdata/findevent/" + id;
+            HttpResponseMessage response = client.GetAsync(url).Result;
+            EventDto SelectedEvent = response.Content.ReadAsAsync<EventDto>().Result;
+            ViewModel.SelectedEvent = SelectedEvent;
+
+            return View(ViewModel);
         }
 
-        // POST: Events/Edit/5
+        // POST: Events/Update/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "EventId,EventName,EventDescription,EventLocation,EventType,EventDate,CreatedAt,UpdatedAt")] Event @event)
+        public ActionResult Update(int id, Event @event)
         {
-            if (ModelState.IsValid)
+            string url = "eventdata/updateevent/" + id;
+            string jsonpayload = jss.Serialize(@event);
+            HttpContent content = new StringContent(jsonpayload);
+            content.Headers.ContentType.MediaType = "application/json";
+            HttpResponseMessage response = client.PostAsync(url, content).Result;
+            if (response.IsSuccessStatusCode)
             {
-                @event.UpdatedAt = DateTime.Now;
-                db.Entry(@event).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("List");
             }
-            return View(@event);
+            else
+            {
+                return RedirectToAction("Error");
+            }
         }
 
-        public ActionResult Delete(int? id)
+        // GET: Events/Delete/5
+        public ActionResult DeleteConfirm(int id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Event @event = db.Events.Find(id);
-            if (@event == null)
-            {
-                return HttpNotFound();
-            }
-            return View(@event);
+            string url = "eventdata/findevent/" + id;
+            HttpResponseMessage response = client.GetAsync(url).Result;
+            EventDto selectedevent = response.Content.ReadAsAsync<EventDto>().Result;
+            return View(selectedevent);
         }
 
         // POST: Events/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        [HttpPost]
+        public ActionResult Delete(int id)
         {
-            Event @event = db.Events.Find(id);
-            db.Events.Remove(@event);
-            db.SaveChanges();
-            return RedirectToAction("Index");
-        }
+            string url = "eventdata/deleteevent/" + id;
+            HttpContent content = new StringContent("");
+            content.Headers.ContentType.MediaType = "application/json";
+            HttpResponseMessage response = client.PostAsync(url, content).Result;
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
+            if (response.IsSuccessStatusCode)
             {
-                db.Dispose();
+                return RedirectToAction("List");
             }
-            base.Dispose(disposing);
+            else
+            {
+                return RedirectToAction("Error");
+            }
         }
-
     }
-    }
+}

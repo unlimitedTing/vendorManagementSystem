@@ -6,6 +6,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using vendorManagementSystem.Models;
+using VendorManagementSystem.Models;
 
 namespace vendorManagementSystem.Controllers
 {
@@ -26,7 +27,7 @@ namespace vendorManagementSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            User user = db.Users.Find(id);
+            VendorManagementSystem.Models.User user = db.Users.Find(id);
             if (user == null)
             {
                 return HttpNotFound();
@@ -42,8 +43,7 @@ namespace vendorManagementSystem.Controllers
 
         // POST: Users/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "UserId,Username,Email,Password,CreatedAt,UpdatedAt")] User user)
+        public ActionResult Create(User user)
         {
             if (ModelState.IsValid)
             {
@@ -64,7 +64,7 @@ namespace vendorManagementSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            User user = db.Users.Find(id);
+            VendorManagementSystem.Models.User user = db.Users.Find(id);
             if (user == null)
             {
                 return HttpNotFound();
@@ -94,7 +94,7 @@ namespace vendorManagementSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            User user = db.Users.Find(id);
+            VendorManagementSystem.Models.User user = db.Users.Find(id);
             if (user == null)
             {
                 return HttpNotFound();
@@ -107,7 +107,7 @@ namespace vendorManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            User user = db.Users.Find(id);
+            VendorManagementSystem.Models.User user = db.Users.Find(id);
             db.Users.Remove(user);
             db.SaveChanges();
             return RedirectToAction("Index");

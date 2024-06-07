@@ -1,20 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace vendorManagementSystem.Models
+namespace VendorManagementSystem.Models
 {
     public class UserEvent
     {
-        public int UserEventId { get; set; }
-        public int UserId { get; set; }
-        public User User { get; set; }
-        public int EventId { get; set; }
-        public Event Event { get; set; }
+        [Key]
+        public int UserEventID { get; set; }
+
+        [ForeignKey("User")]
+        public int UserID { get; set; }
+        public virtual User User { get; set; }
+
+        [ForeignKey("Event")]
+        public int EventID { get; set; }
+        public virtual Event Event { get; set; }
+
         public string Status { get; set; }
         public string Notes { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set;}
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public class UserEventDto
+    {
+        public int UserEventID { get; set; }
+        public int UserID { get; set; }
+        public string Username { get; set; }
+        public int EventID { get; set; }
+        public string EventName { get; set; }
+        public string Status { get; set; }
+        public string Notes { get; set; }
     }
 }

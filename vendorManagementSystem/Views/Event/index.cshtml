@@ -1,0 +1,43 @@
+﻿@model IEnumerable<VendorManagementSystem.Models.EventDto>
+
+@{
+    ViewBag.Title = "Event List";
+}
+
+<h2>Event List</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.EventName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EventDate)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EventName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EventDate)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.EventID }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.EventID }) |
+                    @Html.ActionLink("Delete", "DeleteConfirm", new { id = item.EventID })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

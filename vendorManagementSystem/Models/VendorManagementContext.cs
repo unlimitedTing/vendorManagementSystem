@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using vendorManagementSystem.Models;
+using VendorManagementSystem.Models;
 
 namespace vendorManagementSystem.Models
 {
@@ -24,12 +25,12 @@ namespace vendorManagementSystem.Models
             modelBuilder.Entity<UserEvent>()
                 .HasRequired(ue => ue.User)
                 .WithMany(u => u.UserEvents)
-                .HasForeignKey(ue => ue.UserId);
+                .HasForeignKey(ue => ue.UserID);
 
             modelBuilder.Entity<UserEvent>()
                 .HasRequired(ue => ue.Event)
                 .WithMany(e => e.UserEvents)
-                .HasForeignKey(ue => ue.EventId);
+                .HasForeignKey(ue => ue.EventID);
         }
     }
 
